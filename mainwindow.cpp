@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QPushButton>
 #include <QKeyEvent>
+#include <QtMath>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -128,17 +129,80 @@ void MainWindow::negClicked()
 
 void MainWindow::operatorClicked(QChar op)
 {
-    Q_UNUSED(op);
+    // 第一次输入运算符：保存第一个操作数
+    if (m_pendingOp.isEmpty())
+    {
+        m_firstOperand = m_currentInput.toDouble();
+        m_pendingOp = op;
+        m_waitingForOperand = true;
+        updateDisplay();
+        return;
+    }
+
+    // 已处于等待状态（连续输入运算符）：用新运算符替换旧运算符
+    if (m_waitingForOperand)
+    {
+        m_pendingOp = op;
+        return;
+    }
+
+    // 已有完整表达式（连续运算）：先算中间结果，再用新运算符继续
+    double result = 0.0;
+    if (calculate(result))
+    {
+        m_firstOperand = result;
+        m_currentInput = QString::number(result);
+        m_pendingOp = op;
+        m_waitingForOperand = true;
+        updateDisplay();
+    }
 }
 
 void MainWindow::equalClicked()
 {
+    // 没有待执行的运算符时按等号无效
+    if (m_pendingOp.isEmpty())
+        return;
+    // 等待第二个操作数时按等号，直接用第一个操作数作为第二个操作数
+    if (m_waitingForOperand)
+        m_currentInput = QString::number(m_firstOperand);
+
+    double result = 0.0;
+    if (calculate(result))
+    {
+        m_currentInput = QString::number(result);
+        m_firstOperand = result;          // 结果可作为下一次连续运算的操作数
+        m_pendingOp.clear();
+        m_waitingForOperand = false;
+        m_justCalculated = true;          // 标记刚算完，下次输入数字开始新运算
+        updateDisplay();
+    }
 }
 
 bool MainWindow::calculate(double &result)
 {
-    Q_UNUSED(result);
-    return false;
+    double second = m_currentInput.toDouble();
+
+    if (m_pendingOp == '+')
+        result = m_firstOperand + second;
+    else if (m_pendingOp == '-')
+        result = m_firstOperand - second;
+    else if (m_pendingOp == '*')
+        result = m_firstOperand * second;
+    else if (m_pendingOp == '/')
+    {
+        // 除数为0：提示错误并复位运算状态，允许重新输入
+        if (qFuzzyIsNull(second))
+        {
+            m_currentInput = "除数不能为0";
+            m_pendingOp.clear();
+            m_waitingForOperand = true;
+            updateDisplay();
+            return false;
+        }
+        result = m_firstOperand / second;
+    }
+    return true;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
