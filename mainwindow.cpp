@@ -57,7 +57,73 @@ void MainWindow::updateDisplay()
 
 void MainWindow::digitClicked(int digit)
 {
-    Q_UNUSED(digit);
+    // 刚按过运算符或刚算完，重新开始输入新操作数
+    if (m_waitingForOperand || m_justCalculated)
+    {
+        m_currentInput.clear();
+        m_waitingForOperand = false;
+        m_justCalculated = false;
+    }
+    // 去掉前导0："0" -> "5" 而不是 "05"
+    if (m_currentInput == "0")
+        m_currentInput.clear();
+    // 限制输入长度，避免显示溢出
+    if (m_currentInput.length() >= 15)
+        return;
+    m_currentInput.append(QString::number(digit));
+    updateDisplay();
+}
+
+void MainWindow::dotClicked()
+{
+    if (m_waitingForOperand || m_justCalculated)
+    {
+        m_currentInput = "0";
+        m_waitingForOperand = false;
+        m_justCalculated = false;
+    }
+    // 防止同一操作数输入重复小数点
+    if (m_currentInput.contains('.'))
+        return;
+    m_currentInput.append('.');
+    updateDisplay();
+}
+
+void MainWindow::backspaceClicked()
+{
+    // 等待第二个操作数或刚算完时不允许退格
+    if (m_waitingForOperand || m_justCalculated)
+        return;
+    // 只剩一位（或负号+一位）时退格归零
+    if (m_currentInput.length() <= 1
+        || (m_currentInput.length() == 2 && m_currentInput.startsWith('-')))
+        m_currentInput = "0";
+    else
+        m_currentInput.chop(1);
+    updateDisplay();
+}
+
+void MainWindow::clearClicked()
+{
+    // 清除后重新计算：所有状态复位
+    m_currentInput = "0";
+    m_firstOperand = 0.0;
+    m_pendingOp.clear();
+    m_waitingForOperand = false;
+    m_justCalculated = false;
+    updateDisplay();
+}
+
+void MainWindow::negClicked()
+{
+    // 正负号切换，仅对非零输入生效
+    if (m_currentInput == "0" || m_currentInput.isEmpty())
+        return;
+    if (m_currentInput.startsWith('-'))
+        m_currentInput.remove(0, 1);
+    else
+        m_currentInput.prepend('-');
+    updateDisplay();
 }
 
 void MainWindow::operatorClicked(QChar op)
@@ -66,22 +132,6 @@ void MainWindow::operatorClicked(QChar op)
 }
 
 void MainWindow::equalClicked()
-{
-}
-
-void MainWindow::clearClicked()
-{
-}
-
-void MainWindow::backspaceClicked()
-{
-}
-
-void MainWindow::dotClicked()
-{
-}
-
-void MainWindow::negClicked()
 {
 }
 
