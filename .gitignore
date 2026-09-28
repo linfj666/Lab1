@@ -1,0 +1,26 @@
+# Build output
+build/
+debug/
+release/
+*.o
+*.obj
+*.exe
+*.dll
+*.a
+*.lib
+Makefile*
+*.stash
+ui_*.h
+moc_*.cpp
+qrc_*.cpp
+.qmake.stash
+
+# Qt Creator
+*.pro.user
+*.pro.user.*
+.qtcreator/
+CMakeLists.txt.user
+
+# OS
+Thumbs.db
+.DS_Store
