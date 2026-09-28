@@ -15,6 +15,30 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     connectButtons();
+    applyStyle();
+}
+
+// 应用样式表：深色主题计算器风格
+void MainWindow::applyStyle()
+{
+    setStyleSheet(R"(
+        QMainWindow { background-color: #2b2b2b; }
+        QLabel#display { background-color: #1f1f1f; color: #ffffff;
+                         font-size: 42px; font-weight: bold;
+                         border-radius: 12px; padding: 0 16px; }
+        QPushButton { font-size: 20px; font-weight: bold;
+                      border: none; border-radius: 10px; }
+        QPushButton:hover { opacity: 0.9; }
+        QPushButton:pressed { opacity: 0.7; }
+        QPushButton#btnClear, QPushButton#btnBackspace, QPushButton#btnNeg {
+            background-color: #a5a5a5; color: #111111; }
+        QPushButton#btnAdd, QPushButton#btnSub,
+        QPushButton#btnMul, QPushButton#btnDiv {
+            background-color: #f09a3e; color: #ffffff; }
+        QPushButton#btnEq { background-color: #2f7cf6; color: #ffffff; }
+        QPushButton { background-color: #4a4a4a; color: #ffffff; }
+        QPushButton#btn0 { background-color: #4a4a4a; color: #ffffff; }
+    )");
 }
 
 MainWindow::~MainWindow()

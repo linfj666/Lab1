@@ -42,6 +42,7 @@ private:
     bool    m_justCalculated;    // 刚完成一次计算（按过等号）
 
     void connectButtons();       // 连接所有按钮信号到处理逻辑
+    void applyStyle();           // 应用界面样式表
     void updateDisplay();        // 刷新显示屏
     bool calculate(double &result); // 执行一次运算，返回是否成功
 };
