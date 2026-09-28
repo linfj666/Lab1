@@ -207,5 +207,41 @@ bool MainWindow::calculate(double &result)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    QMainWindow::keyPressEvent(event);
+    int key = event->key();
+
+    // 数字：主键盘 0x30-0x39，小键盘 0x80-0x89（Qt6 键值兼容）
+    if (key >= 0x30 && key <= 0x39)
+        digitClicked(key - 0x30);
+    else if (key >= 0x80 && key <= 0x89)
+        digitClicked(key - 0x80);
+
+    // 四则运算符（兼容小键盘键值 0x8a~0x8e）
+    else if (key == Qt::Key_Plus || key == 0x8b)
+        operatorClicked('+');
+    else if (key == Qt::Key_Minus || key == 0x8c)
+        operatorClicked('-');
+    else if (key == Qt::Key_Asterisk || key == 0x8a)
+        operatorClicked('*');
+    else if (key == Qt::Key_Slash || key == 0x8e)
+        operatorClicked('/');
+
+    // 等号：= 或 回车（含小键盘回车 0x8f）
+    else if (key == Qt::Key_Equal || key == Qt::Key_Enter
+             || key == Qt::Key_Return || key == 0x8f)
+        equalClicked();
+
+    // 小数点（主键盘 . 和 , ，小键盘小数点 0x8d）
+    else if (key == Qt::Key_Period || key == Qt::Key_Comma || key == 0x8d)
+        dotClicked();
+
+    // 退格
+    else if (key == Qt::Key_Backspace)
+        backspaceClicked();
+
+    // 清除：C 或 Esc
+    else if (key == Qt::Key_C || key == Qt::Key_Escape)
+        clearClicked();
+
+    else
+        QMainWindow::keyPressEvent(event);
 }
