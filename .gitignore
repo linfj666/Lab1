@@ -20,6 +20,7 @@ qrc_*.cpp
 *.pro.user.*
 .qtcreator/
 CMakeLists.txt.user
+*.ui.autosave
 
 # OS
 Thumbs.db
