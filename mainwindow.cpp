@@ -77,7 +77,22 @@ void MainWindow::connectButtons()
 
 void MainWindow::updateDisplay()
 {
-    ui->display->setText(m_currentInput);
+    if (m_waitingForOperand && !m_pendingOp.isEmpty())
+    {
+        // 等待第二个操作数时，显示 "第一个操作数 + 运算符"，确认按键已生效
+        QString opText = m_pendingOp;
+        if (opText == "*")
+            opText = "×";
+        else if (opText == "/")
+            opText = "÷";
+        else if (opText == "-")
+            opText = "−";
+        ui->display->setText(m_currentInput + " " + opText);
+    }
+    else
+    {
+        ui->display->setText(m_currentInput);
+    }
 }
 
 void MainWindow::digitClicked(int digit)
@@ -153,7 +168,7 @@ void MainWindow::negClicked()
 
 void MainWindow::operatorClicked(QChar op)
 {
-    // 第一次输入运算符：保存第一个操作数
+    // 第一次输入运算符：保存第一个操作数，显示 "第一个操作数 运算符"
     if (m_pendingOp.isEmpty())
     {
         m_firstOperand = m_currentInput.toDouble();
@@ -167,6 +182,7 @@ void MainWindow::operatorClicked(QChar op)
     if (m_waitingForOperand)
     {
         m_pendingOp = op;
+        updateDisplay();
         return;
     }
 
